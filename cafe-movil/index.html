@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ALTOKE cafe al paso</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Styles -->
+<link rel="stylesheet" href="css/style.css" />
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>s
+
+<!-- ==================== NAVBAR ==================== -->
+<nav id="navbar">
+  <a class="nav-logo" href="#" onclick="showPage('landing')">
+    ALTOKE
+    <span class="nav-logo-badge">cafe al paso</span>
+  </a>
+  <div class="nav-actions" id="nav-actions">
+    <button class="btn btn-outline btn-sm" onclick="openAuthModal('login')">Ingresar</button>
+    <button class="btn btn-sm" onclick="openAuthModal('register')">Registrarse</button>
+  </div>
+</nav>
+
+<!-- ==================== AUTH MODAL ==================== -->
+<div class="modal-overlay hidden" id="auth-modal">
+  <div class="modal-box fade-in">
+    <button class="modal-close" onclick="closeAuthModal()">x</button>
+    <p class="modal-title">Acceder</p>
+    <p class="modal-sub">Inicia sesion o crea tu cuenta para ordenar.</p>
+
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Iniciar Sesion</button>
+      <button class="modal-tab" id="tab-register" onclick="switchAuthTab('register')">Registrarse</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="form-login">
+      <div id="login-error" class="error-msg hidden"></div>
+      <div class="input-group">
+        <label>Correo Electronico</label>
+        <input type="email" id="login-email" placeholder="tu@correo.com" />
+      </div>
+      <div class="input-group">
+        <label>Contrasena</label>
+        <input type="password" id="login-pass" placeholder="*******" />
+      </div>
+      <button class="btn btn-full btn-lg" onclick="doLogin()">Ingresar</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="form-register" class="hidden">
+      <div id="register-error" class="error-msg hidden"></div>
+      <div class="input-group">
+        <label>Nombre Completo</label>
+        <input type="text" id="reg-name" placeholder="Juan Perez" />
+      </div>
+      <div class="input-group">
+        <label>Correo Electronico</label>
+        <input type="email" id="reg-email" placeholder="tu@correo.com" />
+      </div>
+      <div class="input-group">
+        <label>Contrasena</label>
+        <input type="password" id="reg-pass" placeholder="Min. 6 caracteres" />
+      </div>
+      <button class="btn btn-full btn-lg" onclick="doRegister()">Crear Cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE: LANDING ==================== -->
+<div id="page-landing" class="page">
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-left">
+      <p class="hero-tag">Cafe de especialidad en movimiento</p>
+      <h1 class="hero-title">Tu cafe, cuando <em>tu lo</em> necesitas.</h1>
+      <p class="hero-desc">
+        Recibimos tu orden, lo preparamos con el tiempo exacto y lo tenemos listo cuando tu llegas.
+        Sin filas. Sin esperas. Solo el mejor cafe de Bogota.
+      </p>
+      <div class="hero-cta">
+        <button class="btn btn-lg" onclick="handleOrderFAB()">Ordenar ahora</button>
+        <a class="btn btn-outline btn-lg" href="#menu-section">Ver menu</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div id="map-hero"></div>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <section id="menu-section">
+    <div class="section-header">
+      <div>
+        <p class="section-tag">Nuestro menu</p>
+        <h2>Bebidas de especialidad</h2>
+      </div>
+      <button class="btn" onclick="handleOrderFAB()">Ordenar ahora</button>
+    </div>
+    <div class="menu-grid" id="menu-grid-public">
+      <!-- populated by JS -->
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="footer">
+    <div>
+      <p class="footer-brand">ALTOKE <span>cafe al paso</span></p>
+      <p class="footer-desc">Cafe de especialidad sobre ruedas en Bogota, Colombia. Desde 2026.</p>
+      <div class="social-row" style="margin-top:20px;">
+        <a href="https://www.instagram.com/altokecafealpaso" class="social-btn">IG</a>
+        <a href="https://www.youtube.com/@ALTOKECAFE" class="social-btn">YT</a>
+        <a href="https://www.tiktok.com/@altokecafe" class="social-btn">TK</a>
+        <a href="https://wa.me/573505626858" class="social-btn">WA</a>
+      </div>
+    </div>
+    <div>
+      <p class="footer-col-title">Navegacion</p>
+      <ul class="footer-links">
+        <li><a href="#hero">Inicio</a></li>
+        <li><a href="#menu-section">Menu</a></li>
+        <li><a href="#" onclick="openAuthModal('login')">Mi Cuenta</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Contacto</p>
+      <ul class="footer-links">
+        <li><a href="#">Altokecafealpaso@gmail.com</a></li>
+        <li><a href="#">+57 350 562 6858</a></li>
+        <li><a href="#">Bogota, Colombia</a></li>
+      </ul>
+    </div>
+  </footer>
+  <div class="footer-bottom">
+    <p>ALTOKE cafe al paso &mdash; Todos los derechos reservados 2025</p>
+  </div>
+
+</div><!-- /page-landing -->
+
+<!-- ==================== PAGE: ORDER (CLIENT) ==================== -->
+<div id="page-order" class="page hidden">
+
+  <div class="order-left">
+    <div class="order-title-row">
+      <h2>Tu Pedido</h2>
+      <span class="order-page-tag">Modulo Cliente</span>
+    </div>
+
+    <!-- Product list -->
+    <div class="product-list" id="product-list-order">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- Time selector -->
+    <div class="input-group">
+      <label>Tiempo estimado de llegada</label>
+      <select id="order-time">
+        <option value="">-- Selecciona cuando llegas --</option>
+        <option value="30">30 minutos</option>
+        <option value="60">60 minutos</option>
+        <option value="90">90 minutos</option>
+      </select>
+    </div>
+
+    <!-- Total -->
+    <div class="order-total-row">
+      <span class="order-total-label">Total estimado</span>
+      <span class="order-total-amount" id="order-total">$0</span>
+    </div>
+
+    <button class="btn btn-full btn-lg" onclick="confirmOrder()" id="btn-confirm-order">
+      Confirmar y obtener QR
+    </button>
+
+    <!-- QR Result -->
+    <div id="qr-result" class="hidden" style="margin-top:28px;">
+      <p style="font-family:var(--ff-mono);font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);">Tu codigo de verificacion</p>
+      <div id="qr-code-container"></div>
+      <p class="qr-code-text" id="qr-code-value"></p>
+      <p class="qr-code-sub">Muestra este QR al llegar al cafe movil.<br>Tiempo estimado: <strong id="qr-time-display"></strong></p>
+      <div style="margin-top:20px; padding-top:20px; border-top:2px solid var(--border);">
+        <button class="btn btn-outline btn-sm" onclick="resetOrder()">Realizar otro pedido</button>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;">
+      <button class="btn btn-outline btn-sm" onclick="showPage('landing')">Volver al inicio</button>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE: MAP + SUMMARY -->
+  <div class="order-right">
+    <div class="order-map-container">
+      <div class="order-map-label">Ubicacion del Cafe Movil</div>
+      <div id="map-order"></div>
+    </div>
+    <div class="order-summary-box">
+      <p style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);margin-bottom:10px;">Estado del vehiculo</p>
+      <p style="font-weight:600;font-size:0.92rem;" id="vehicle-location-text">Cargando ubicacion...</p>
+      <p style="font-family:var(--ff-mono);font-size:0.75rem;color:var(--gray-dk);margin-top:4px;">Actualizado en tiempo real</p>
+      <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="badge badge-pending">En servicio</span>
+        <span style="font-family:var(--ff-mono);font-size:0.7rem;padding:4px 10px;border:2px solid var(--border);color:var(--gray-dk);">Lun-Vie 07:00-18:00</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-order -->
+
+<!-- ==================== PAGE: VENDEDOR (ventas de mostrador) ==================== -->
+<div id="page-vendedor" class="page hidden">
+
+  <div class="order-left">
+    <div class="order-title-row">
+      <h2>Registrar Venta</h2>
+      <span class="order-page-tag">Modulo Vendedor</span>
+    </div>
+
+    <!-- Alerta de stock bajo, igual que en el admin -->
+    <div id="stock-alert-banner-v" class="hidden" style="background:#3a1a1a;border:2px solid #e05252;padding:12px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span style="font-family:var(--ff-mono);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#e05252;white-space:nowrap;">&#9888; Stock bajo</span>
+      <span id="stock-alert-lista-v" style="font-family:var(--ff-mono);font-size:0.78rem;color:#f0a0a0;"></span>
+    </div>
+
+    <div class="product-list" id="product-list-vendedor"><!-- populated by JS --></div>
+
+    <div class="order-total-row">
+      <span class="order-total-label">Total de la venta</span>
+      <span class="order-total-amount" id="venta-total">$0</span>
+    </div>
+
+    <button class="btn btn-full btn-lg" onclick="registrarVentaClick()" id="btn-registrar-venta">
+      Registrar venta
+    </button>
+
+    <div style="margin-top:24px;">
+      <button class="btn btn-outline btn-sm" onclick="showPage('landing')">Volver al inicio</button>
+    </div>
+  </div>
+
+  <div class="order-right">
+    <div class="order-summary-box">
+      <p style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);margin-bottom:10px;">Ventas de hoy</p>
+      <table class="orders-table">
+        <thead><tr><th>Codigo</th><th>Detalle</th><th>Total</th><th>Hora</th></tr></thead>
+        <tbody id="tbody-ventas-hoy">
+          <tr><td colspan="4" style="text-align:center;color:var(--gray-dk);padding:20px;font-family:var(--ff-mono);font-size:0.78rem;">Sin ventas registradas hoy</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /page-vendedor -->
+
+<!-- ==================== PAGE: ADMIN ==================== -->
+<div id="page-admin" class="page hidden">
+
+  <!-- Sidebar -->
+  <div class="admin-sidebar">
+    <p class="admin-brand">Panel Admin</p>
+    <div class="admin-nav-item active" onclick="showAdminPanel('dashboard')">Dashboard</div>
+    <div class="admin-nav-item" onclick="showAdminPanel('pendientes')">Pendientes</div>
+    <div class="admin-nav-item" onclick="showAdminPanel('realizados')">Realizados</div>
+    <div class="admin-nav-item" onclick="showAdminPanel('cont-ingresos')">Ingresos</div>
+    <div class="admin-nav-item" onclick="showAdminPanel('cont-egresos')">Egresos</div>
+    <div class="admin-nav-item" onclick="showAdminPanel('ubicacion')">Ubicacion</div>
+    <div class="admin-nav-item" onclick="showAdminPanel('productos')">Productos</div>
+    <div class="admin-nav-item" onclick="showAdminPanel('inventario')">Inventario</div>
+    <div style="margin-top:auto;padding:24px;border-top:1px solid #333;margin-top:32px;">
+      <button class="btn btn-outline btn-sm btn-full" style="background:transparent;color:#888;border-color:#555;" onclick="doLogout()">Cerrar sesion</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="admin-content">
+
+    <!-- BANNER STOCK BAJO -->
+    <div id="stock-alert-banner" class="hidden" style="background:#3a1a1a;border:2px solid #e05252;padding:12px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span style="font-family:var(--ff-mono);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#e05252;white-space:nowrap;">&#9888; Stock bajo</span>
+      <span id="stock-alert-lista" style="font-family:var(--ff-mono);font-size:0.78rem;color:#f0a0a0;"></span>
+    </div>
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <div id="admin-dashboard" class="admin-panel fade-in">
+      <div class="admin-panel-title">
+        <h2>Dashboard</h2>
+        <span class="admin-panel-tag">Hoy</span>
+      </div>
+
+      <!-- Pedidos -->
+      <div class="stat-grid" style="margin-bottom:28px;">
+        <div class="stat-card">
+          <p class="stat-label">Pedidos hoy</p>
+          <p class="stat-value accent" id="stat-total">0</p>
+          <p class="stat-sub">ordenes registradas</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Pedidos pendientes</p>
+          <p class="stat-value" id="stat-pending">0</p>
+          <p class="stat-sub">por preparar</p>
+        </div>
+      </div>
+
+      <!-- Resumen financiero del DIA -->
+      <p style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);margin-bottom:12px;">Resumen del dia</p>
+      <div class="stat-grid" style="margin-bottom:28px;">
+        <div class="stat-card">
+          <p class="stat-label">Ingresos hoy</p>
+          <p class="stat-value accent" id="stat-ingresos-hoy" style="color:var(--gold);">$0</p>
+          <p class="stat-sub">pedidos completados</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Egresos hoy</p>
+          <p class="stat-value" id="stat-egresos-hoy" style="color:#e05252;">$0</p>
+          <p class="stat-sub">gastos registrados</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Balance hoy</p>
+          <p class="stat-value" id="stat-balance-hoy">$0</p>
+          <p class="stat-sub">ingresos - egresos</p>
+        </div>
+      </div>
+
+      <!-- Resumen financiero del MES -->
+      <p style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);margin-bottom:12px;">Resumen del mes</p>
+      <div class="stat-grid" style="margin-bottom:32px;">
+        <div class="stat-card">
+          <p class="stat-label">Ingresos mes</p>
+          <p class="stat-value accent" id="stat-ingresos-mes" style="color:var(--gold);">$0</p>
+          <p class="stat-sub">COP acumulado</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Egresos mes</p>
+          <p class="stat-value" id="stat-egresos-mes" style="color:#e05252;">$0</p>
+          <p class="stat-sub">COP acumulado</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Balance mes</p>
+          <p class="stat-value" id="stat-balance-mes">$0</p>
+          <p class="stat-sub">ingresos - egresos</p>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:16px;">Pedidos recientes</h3>
+      <table class="orders-table" id="dash-recent-table">
+        <thead>
+          <tr>
+            <th>Codigo</th><th>Cliente</th><th>Tiempo</th><th>Estado</th><th>Accion</th>
+          </tr>
+        </thead>
+        <tbody id="dash-recent-tbody">
+          <tr><td colspan="5" style="text-align:center;color:var(--gray-dk);padding:32px;font-family:var(--ff-mono);font-size:0.8rem;">Sin pedidos aun</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ==================== PENDIENTES ==================== -->
+    <div id="admin-pendientes" class="admin-panel fade-in hidden">
+      <div class="admin-panel-title">
+        <h2>Pedidos Pendientes</h2>
+        <span class="admin-panel-tag">En cola</span>
+      </div>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Codigo</th><th>Cliente</th><th>Detalle</th><th>Llega en</th><th>Hora registro</th><th>Accion</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-pendientes">
+          <tr><td colspan="6" style="text-align:center;color:var(--gray-dk);padding:32px;font-family:var(--ff-mono);font-size:0.8rem;">Sin pedidos pendientes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ==================== REALIZADOS ==================== -->
+    <div id="admin-realizados" class="admin-panel fade-in hidden">
+      <div class="admin-panel-title">
+        <h2>Pedidos Realizados</h2>
+        <span class="admin-panel-tag">Historial</span>
+      </div>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Codigo</th><th>Cliente</th><th>Detalle</th><th>Tiempo</th><th>Completado</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-realizados">
+          <tr><td colspan="5" style="text-align:center;color:var(--gray-dk);padding:32px;font-family:var(--ff-mono);font-size:0.8rem;">Sin pedidos completados</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ==================== CONTABILIDAD: INGRESOS ==================== -->
+    <div id="admin-cont-ingresos" class="admin-panel fade-in hidden">
+      <div class="admin-panel-title">
+        <h2>Contabilidad — Ingresos</h2>
+        <span class="admin-panel-tag">COP</span>
+      </div>
+
+      <!-- Filtros tabla -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px;">
+        <div class="input-group" style="margin:0;min-width:120px;">
+          <label>Mes</label>
+          <select id="filter-mes-ingresos">
+            <option value="1">Enero</option><option value="2">Febrero</option>
+            <option value="3">Marzo</option><option value="4">Abril</option>
+            <option value="5">Mayo</option><option value="6">Junio</option>
+            <option value="7">Julio</option><option value="8">Agosto</option>
+            <option value="9">Septiembre</option><option value="10">Octubre</option>
+            <option value="11">Noviembre</option><option value="12">Diciembre</option>
+          </select>
+        </div>
+        <div class="input-group" style="margin:0;min-width:100px;">
+          <label>Año</label>
+          <input type="number" id="filter-anio-ingresos" value="2026" min="2024" max="2030" />
+        </div>
+        <button class="btn btn-sm" onclick="renderContabilidadIngresos()">Filtrar</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid" style="margin-bottom:28px;">
+        <div class="stat-card">
+          <p class="stat-label">Pedidos realizados</p>
+          <p class="stat-value accent" id="cont-total-pedidos">0</p>
+          <p class="stat-sub">en el periodo</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Total ingresos</p>
+          <p class="stat-value accent" id="cont-ingresos-total" style="color:var(--gold);">$0</p>
+          <p class="stat-sub">COP</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Promedio por pedido</p>
+          <p class="stat-value" id="cont-promedio">$0</p>
+          <p class="stat-sub">por orden</p>
+        </div>
+      </div>
+
+  <!-- Tabla desglose -->
+      <h3 style="margin-bottom:16px;">Desglose de ventas</h3>
+      <table class="orders-table">
+        <thead>
+          <tr><th>Codigo</th><th>Cliente</th><th>Detalle</th><th>Total</th><th>Fecha</th></tr>
+        </thead>
+        <tbody id="tbody-ingresos">
+          <tr><td colspan="5" style="text-align:center;color:var(--gray-dk);padding:32px;font-family:var(--ff-mono);font-size:0.8rem;">Sin datos para este periodo</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Grafico -->
+        <h3 style="margin-bottom:16px;margin-top:24px;">Analisis de Ingresos</h3>
+      <div style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <p style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);">Grafico de ingresos</p>
+          <select id="periodo-ingresos" onchange="renderContabilidadIngresos()" style="font-family:var(--ff-mono);font-size:0.75rem;padding:4px 8px;background:var(--gray);border:1px solid var(--border);color:var(--black);">
+            <option value="7d">Ultimos 7 dias</option>
+            <option value="mes">Este mes</option>
+            <option value="12m">Ultimos 12 meses</option>
+          </select>
+        </div>
+        <div style="height:220px;background:var(--gray);border:2px solid var(--border);padding:16px;">
+          <canvas id="chart-ingresos"></canvas>
+        </div>
+      </div>
+
+      <!-- Ranking de ventas -->
+      <div style="margin-top:36px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <span style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);">Ranking de productos</span>
+        </div>
+        <div style="background:var(--gray);border:2px solid var(--border);padding:20px 24px;" id="ranking-ventas-bars">
+          <p style="font-family:var(--ff-mono);font-size:0.75rem;color:var(--black);">Cargando...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== CONTABILIDAD: EGRESOS ==================== -->
+    <div id="admin-cont-egresos" class="admin-panel fade-in hidden">
+      <div class="admin-panel-title">
+        <h2>Contabilidad — Egresos</h2>
+        <span class="admin-panel-tag">COP</span>
+      </div>
+
+
+      <!-- Filtros tabla -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px;">
+        <div class="input-group" style="margin:0;min-width:120px;">
+          <label>Mes</label>
+          <select id="filter-mes-egresos">
+            <option value="1">Enero</option><option value="2">Febrero</option>
+            <option value="3">Marzo</option><option value="4">Abril</option>
+            <option value="5">Mayo</option><option value="6">Junio</option>
+            <option value="7">Julio</option><option value="8">Agosto</option>
+            <option value="9">Septiembre</option><option value="10">Octubre</option>
+            <option value="11">Noviembre</option><option value="12">Diciembre</option>
+          </select>
+        </div>
+        <div class="input-group" style="margin:0;min-width:100px;">
+          <label>Año</label>
+          <input type="number" id="filter-anio-egresos" value="2026" min="2024" max="2030" />
+        </div>
+        <button class="btn btn-sm" onclick="renderContabilidadEgresos()">Filtrar</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid" style="margin-bottom:28px;">
+        <div class="stat-card">
+          <p class="stat-label">Total egresos</p>
+          <p class="stat-value" id="egr-total" style="color:#e05252;">$0</p>
+          <p class="stat-sub">COP</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Cantidad de registros</p>
+          <p class="stat-value" id="egr-count">0</p>
+          <p class="stat-sub">en el periodo</p>
+        </div>
+      </div>
+
+
+      <!-- Tabla -->
+      <h3 style="margin-bottom:16px;">Desglose de egresos</h3>
+      <table class="orders-table">
+        <thead>
+          <tr><th>Concepto</th><th>Monto</th><th>Tipo</th><th>Fecha</th><th>Accion</th></tr>
+        </thead>
+        <tbody id="tbody-egresos">
+          <tr><td colspan="5" style="text-align:center;color:var(--gray-dk);padding:32px;font-family:var(--ff-mono);font-size:0.8rem;">Sin datos para este periodo</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Grafico -->
+       <h3 style="margin-bottom:16px; margin-top:24px;">Analisis de Egresos</h3>
+      <div style="margin-bottom:24px; margin-top:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <p style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);">Grafico de egresos</p>
+          <select id="periodo-egresos" onchange="renderContabilidadEgresos()" style="font-family:var(--ff-mono);font-size:0.75rem;padding:4px 8px;background:var(--gray);border:1px solid var(--border);color:var(--black);">
+            <option value="7d">Ultimos 7 dias</option>
+            <option value="mes">Este mes</option>
+            <option value="12m">Ultimos 12 meses</option>
+          </select>
+        </div>
+        <div style="height:220px;background:var(--gray);border:2px solid var(--border);padding:16px;">
+          <canvas id="chart-egresos"></canvas>
+        </div>
+      </div>
+
+      <!-- Ranking de egresos -->
+      <div style="margin-top:36px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <span style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);">Ranking de gastos</span>
+        </div>
+        <div style="background:var(--gray);border:2px solid var(--border);padding:20px 24px;" id="ranking-egresos-bars">
+          <p style="font-family:var(--ff-mono);font-size:0.75rem;color:var(--gray-dk);">Cargando...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== UBICACION ==================== -->
+    <div id="admin-ubicacion" class="admin-panel fade-in hidden">
+      <div class="admin-panel-title">
+        <h2>Ubicacion del Vehiculo</h2>
+        <span class="admin-panel-tag">GPS</span>
+      </div>
+      <p style="color:var(--gray-dk);font-size:0.88rem;margin-bottom:28px;">
+        Haz clic en el mapa para mover el marcador o usa los puntos rapidos. Cuando estes conforme, presiona <strong>Guardar ubicacion</strong>.
+      </p>
+      <div style="margin-bottom:24px;border:2px solid var(--black);height:360px;position:relative;" id="map-admin-preview"></div>
+      <div style="margin-bottom:24px;">
+        <p style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dk);margin-bottom:10px;">Puntos rapidos en Bogota</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="setLocation(4.7110,-74.0721,'Parque de la 93')">Parque 93</button>
+          <button class="btn btn-outline btn-sm" onclick="setLocation(4.6097,-74.0817,'Centro Historico')">Centro</button>
+          <button class="btn btn-outline btn-sm" onclick="setLocation(4.6683,-74.0560,'Chapinero')">Chapinero</button>
+          <button class="btn btn-outline btn-sm" onclick="setLocation(4.7589,-74.0437,'Usaquen')">Usaquen</button>
+          <button class="btn btn-outline btn-sm" onclick="setLocation(4.6806,-74.1259,'Suba')">Suba</button>
+        </div>
+      </div>
+      <div class="coord-row" style="margin-bottom:20px;">
+        <div class="input-group">
+          <label>Latitud</label>
+          <input type="text" id="admin-lat" value="4.7110" placeholder="4.7110" />
+        </div>
+        <div class="input-group">
+          <label>Longitud</label>
+          <input type="text" id="admin-lng" value="-74.0721" placeholder="-74.0721" />
+        </div>
+      </div>
+      <div class="input-group" style="max-width:500px;margin-bottom:24px;">
+        <label>Descripcion de ubicacion</label>
+        <input type="text" id="admin-desc" value="Parque de la 93 - Chapinero" placeholder="Ej: Parque de la 93" />
+      </div>
+      <button class="btn btn-lg" id="btn-update-location" onclick="updateVehicleLocation()">Guardar ubicacion</button>
+    </div>
+
+    <!-- ==================== PRODUCTOS ==================== -->
+    <div id="admin-productos" class="admin-panel fade-in hidden">
+      <div class="admin-panel-title">
+        <h2>Gestion de Productos</h2>
+        <span class="admin-panel-tag">Menu</span>
+      </div>
+      <div style="background:var(--gray);border:2px solid var(--border);padding:28px;margin-bottom:32px;">
+        <h4 id="prod-form-title" style="margin-bottom:20px;">Agregar producto</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div class="input-group" style="margin:0;">
+            <label>Nombre</label>
+            <input type="text" id="prod-nombre" placeholder="Espresso Clasico" />
+          </div>
+          <div class="input-group" style="margin:0;">
+            <label>Precio (COP)</label>
+            <input type="number" id="prod-precio" placeholder="45000" />
+          </div>
+        </div>
+        <div class="input-group" style="margin-bottom:16px;">
+          <label>Descripcion</label>
+          <input type="text" id="prod-desc" placeholder="Breve descripcion del producto" />
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn" id="btn-add-product" onclick="addProduct()">Agregar producto</button>
+          <button class="btn btn-success hidden" id="btn-update-product" onclick="saveEditProduct()">Actualizar producto</button>
+          <button class="btn btn-outline hidden" id="btn-cancel-edit" onclick="cancelEditProduct()">Cancelar</button>
+        </div>
+      </div>
+      <table class="orders-table">
+        <thead>
+          <tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Descripcion</th><th>Ingredientes</th><th>Acciones</th></tr>
+        </thead>
+        <tbody id="tbody-productos">
+          <tr><td colspan="6" style="text-align:center;color:var(--gray-dk);padding:32px;font-family:var(--ff-mono);font-size:0.8rem;">Sin productos</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ==================== INVENTARIO ==================== -->
+    <div id="admin-inventario" class="admin-panel fade-in hidden">
+      <div class="admin-panel-title">
+        <h2>Inventario</h2>
+        <span class="admin-panel-tag">Stock</span>x 
+      </div>
+
+      <!-- Registrar compra -->
+      <div style="background:var(--gray);border:2px solid var(--border);padding:24px;margin-bottom:32px;">
+        <h4 style="margin-bottom:8px;">Registrar compra de insumo</h4>
+        <p style="color:var(--gray-dk);font-size:0.82rem;margin-bottom:16px;">Al registrar una compra se crea automaticamente un egreso vinculado.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div class="input-group" style="margin:0;">
+            <label>Nombre del insumo</label>
+            <input type="text" id="inv-nombre" placeholder="Ej: Granos de cafe" />
+          </div>
+          <div class="input-group" style="margin:0;">
+            <label>Cantidad</label>
+            <input type="number" id="inv-cantidad" placeholder="10" step="0.01" />
+          </div>
+          <div class="input-group" style="margin:0;">
+            <label>Precio unitario (COP)</label>
+            <input type="number" id="inv-precio" placeholder="15000" />
+          </div>
+          <div class="input-group" style="margin:0;">
+            <label>Proveedor</label>
+            <select id="inv-proveedor-sel">
+              <option value="">Sin proveedor</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" onclick="registrarCompra()">Registrar compra</button>
+      </div>
+
+      <!-- Tabla inventario -->
+      <h4 style="margin-bottom:16px;">Stock actual</h4>
+      <table class="orders-table" style="margin-bottom:48px;">
+        <thead>
+          <tr><th>Insumo</th><th>Cantidad</th><th>Stock minimo</th><th>Precio unitario</th><th>Proveedor</th><th>Ultima actualizacion</th><th>Accion</th></tr>
+        </thead>
+        <tbody id="tbody-inventario">
+          <tr><td colspan="7" style="text-align:center;color:var(--gray-dk);padding:32px;font-family:var(--ff-mono);font-size:0.8rem;">Sin items en inventario</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Proveedores -->
+      <div style="border-top:2px solid var(--border);padding-top:32px;">
+        <h4 style="margin-bottom:20px;">Proveedores</h4>
+        <div style="background:var(--gray);border:2px solid var(--border);padding:20px;margin-bottom:20px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div class="input-group" style="margin:0;">
+              <label>Nombre del proveedor</label>
+              <input type="text" id="prov-nombre" placeholder="Ej: Distribuidora Andina" />
+            </div>
+            <div class="input-group" style="margin:0;">
+              <label>Contacto (tel o email)</label>
+              <input type="text" id="prov-contacto" placeholder="3001234567" />
+            </div>
+          </div>
+          <button class="btn btn-sm" onclick="addProveedor()">Agregar proveedor</button>
+        </div>
+        <table class="orders-table">
+          <thead><tr><th>Nombre</th><th>Contacto</th><th>Accion</th></tr></thead>
+          <tbody id="tbody-proveedores">
+            <tr><td colspan="3" style="text-align:center;color:var(--gray-dk);padding:24px;font-family:var(--ff-mono);font-size:0.8rem;">Sin proveedores registrados</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /admin-content -->
+</div><!-- /page-admin -->
+
+<!-- ==================== MODAL INGREDIENTES ====================-->
+<div id="ingredientes-modal" class="hidden" style="position:fixed;inset:0;background:rgba(57, 57, 57, 0.8);z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--white);border:2px solid var(--border);padding:32px;width:90%;max-width:560px;max-height:80vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <p id="modal-ing-titulo" style="font-family:var(--ff-mono);font-size:0.75rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);"></p>
+      <button class="btn btn-outline btn-sm" onclick="closeIngredientesModal()">Cerrar</button>
+    </div>
+
+    <!-- Lista de ingredientes actuales -->
+    <table class="orders-table" style="margin-bottom:24px;">
+      <thead><tr><th>Insumo</th><th>Cantidad</th><th>Accion</th></tr></thead>
+      <tbody id="tbody-ingredientes-modal">
+        <tr><td colspan="3" style="text-align:center;color:var(--gray-dk);padding:16px;font-size:0.8rem;">Sin ingredientes</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Agregar ingrediente -->
+    <div style="background:var(--gray);border:2px solid var(--border);padding:16px;">
+      <p style="font-family:var(--ff-mono);font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray-dk);margin-bottom:12px;">Agregar ingrediente</p>
+      <div style="display:grid;grid-template-columns:1fr 100px 80px;gap:10px;margin-bottom:12px;align-items:end;">
+        <div class="input-group" style="margin:0;">
+          <label>Insumo</label>
+          <select id="ing-insumo-sel">
+            <option value="">Selecciona insumo...</option>
+          </select>
+        </div>
+        <div class="input-group" style="margin:0;">
+          <label>Cantidad</label>
+          <input type="number" id="ing-cantidad" placeholder="20" step="0.1" min="0.1" />
+        </div>
+        <div class="input-group" style="margin:0;">
+          <label>Unidad</label>
+          <select id="ing-unidad-sel">
+            <option value="g">g</option>
+            <option value="ml">ml</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-sm" onclick="addIngredienteModal()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL PROVEEDOR ==================== -->
+<div id="proveedor-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--white);border:2px solid var(--gold);padding:36px;min-width:320px;max-width:440px;width:90%;">
+    <p style="font-family:var(--ff-mono);font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Informacion del proveedor</p>
+    <h3 id="modal-prov-nombre" style="margin-bottom:12px;">—</h3>
+    <p style="font-family:var(--ff-mono);font-size:0.88rem;color:var(--gray-dk);margin-bottom:8px;">Contacto:</p>
+    <p id="modal-prov-contacto" style="font-size:1rem;margin-bottom:28px;">—</p>
+    <button class="btn btn-outline" onclick="closeProveedorModal()">Cerrar</button>
+  </div>
+</div>
+
+<!-- ==================== MODAL: LECTOR QR ==================== -->
+<div class="modal-overlay hidden" id="qr-scanner-modal">
+  <div class="modal-box fade-in" style="max-width:400px;text-align:center;">
+    <button class="modal-close" onclick="closeQrScanner()">x</button>
+    <p class="modal-title" style="margin-bottom:8px;">Lector QR</p>
+    <p style="font-family:var(--ff-mono);font-size:0.72rem;color:var(--gray-dk);margin-bottom:16px;">Apunta la camara al codigo QR de la orden</p>
+    <div style="position:relative;width:100%;background:#000;border:2px solid var(--border);border-radius:2px;overflow:hidden;">
+      <video id="qr-video" style="width:100%;display:block;" playsinline></video>
+      <canvas id="qr-canvas" style="display:none;"></canvas>
+      <!-- Marco de guia -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;border:2px solid var(--gold);pointer-events:none;"></div>
+    </div>
+    <p id="qr-scan-status" style="font-family:var(--ff-mono);font-size:0.72rem;color:var(--gray-dk);margin-top:12px;">Escaneando...</p>
+  </div>
+</div>
+
+<!-- ==================== MODAL: CONFIRMAR ENTREGA ==================== -->
+<div class="modal-overlay hidden" id="qr-confirm-modal">
+  <div class="modal-box fade-in" style="max-width:380px;text-align:center;">
+    <p class="modal-title" style="margin-bottom:8px;">Confirmar entrega</p>
+    <p style="font-size:0.9rem;color:var(--gray-dk);margin-bottom:6px;">¿Desea entregar la orden</p>
+    <p id="qr-confirm-codigo" style="font-family:var(--ff-mono);font-size:1.1rem;font-weight:700;color:var(--gold);margin-bottom:24px;">—</p>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button class="btn btn-outline" onclick="closeQrConfirm()">Cancelar</button>
+      <button class="btn btn-success" onclick="confirmQrDelivery()">Si, entregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script><!---- lector QR -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/api.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/app.js"></script>
+<script src="js/admin_nuevas_funciones.js"></script>
+<script src="js/vendedor.js"></script>
+<script>
+  // Verificar stock al cargar el panel admin
+  const _origShowPage = showPage;
+  showPage = function(page) {
+    _origShowPage(page);
+    if (page === 'admin') {
+      checkStockAlerts();
+      // Revisar cada 2 minutos
+      if (stockAlertInterval) clearInterval(stockAlertInterval);
+      stockAlertInterval = setInterval(checkStockAlerts, 120000);
+    }
+  };
+</script>
+
+</html>
