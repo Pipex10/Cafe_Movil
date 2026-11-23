@@ -3,7 +3,7 @@
 // ============================================================
 
 const API = {
-  _base: '/xampp/cafe-movil/api',
+  _base: './api',
 
   async _req(method, path, body = null) {
     const opts = {
